@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حاسبة البناء الشاملة - من الحفر إلى المفتاح</title>
+  <style>
+    :root {
+      --bg-color: #0b132b;
+      --card-bg: #1c2541;
+      --accent-color: #48cae4;
+      --accent-hover: #00b4d8;
+      --text-color: #ffffff;
+      --text-muted: #a0aec0;
+      --border-color: #2a3a5e;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 15px;
+      direction: rtl;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
+      color: var(--accent-color);
+      margin-bottom: 5px;
+      font-size: 1.8rem;
+    }
+
+    /* القائمة السريعة للمراحل */
+    .stages-nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .stage-btn {
+      padding: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+      transition: 0.2s;
+      text-align: center;
+    }
+
+    .stage-btn.active {
+      background: var(--accent-color);
+      color: #000;
+      border-color: var(--accent-color);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      background: #0b132b;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row .form-group {
+      flex: 1;
+    }
+
+    button.calc-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent-color);
+      border: none;
+      color: #000;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    button.calc-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .results {
+      margin-top: 15px;
+      background: #0b132b;
+      padding: 15px;
+      border-radius: 8px;
+      border-right: 4px solid var(--accent-color);
+      display: none;
+    }
+
+    .results p {
+      margin: 6px 0;
+      font-size: 0.95rem;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🏗️ حاسبة البناء الشاملة</h1>
+    <p>حساب الكميات والمواد من الحفريات والدفن حتى تسليم المفتاح</p>
+  </div>
+
+  <!-- تنقل المراحل -->
+  <div class="stages-nav">
+    <button class="stage-btn active" onclick="switchStage('earth')">1. الترابيات والدفن</button>
+    <button class="stage-btn" onclick="switchStage('concrete')">2. الخرسانة</button>
+    <button class="stage-btn" onclick="switchStage('steel')">3. حديد التسليح</button>
+    <button class="stage-btn" onclick="switchStage('masonry')">4. البناء والتقطيع</button>
+    <button class="stage-btn" onclick="switchStage('plaster')">5. اللبخ والبياض</button>
+    <button class="stage-btn" onclick="switchStage('tiles')">6. الأرضيات</button>
+    <button class="stage-btn" onclick="switchStage('paint')">7. الصبغ والدهان</button>
+    <button class="stage-btn" onclick="switchStage('key')">8. كلفة المفتاح</button>
+  </div>
+
+  <!-- 1. الترابيات والحفريات -->
+  <div id="earth" class="tab-content active">
+    <div class="card">
+      <h3>🚜 مرحلة الترابيات والدفن</h3>
+      <div class="row">
+        <div class="form-group"><label>الطول (م):</label><input type="number" id="eL" value="10"></div>
+        <div class="form-group"><label>العرض (م):</label><input type="number" id="eW" value="10"></div>
+        <div class="form-group"><label>العمق/الارتفاع (م):</label><input type="number" id="eH" value="1"></div>
+      </div>
+      <div class="form-group">
+        <label>سعة السيارة/اللوري التقديرية (م³):</label>
+        <input type="number" id="truckCap" value="12">
+      </div>
+      <button class="calc-btn" onclick="calcEarth()">احسب كميات الترابيات</button>
+      <div class="results" id="resEarth">
+        <p>الحجم الصافي المطلوب: <strong id="eVol">0</strong> م³</p>
+        <p>الحجم بعد الانتفاخ (معامل 1.25): <strong id="eSwell">0</strong> م³</p>
+        <p>🚚 عدد نقلات السيارات المطلوبة: <strong id="eTrucks" style="color:var(--accent-color)">0</strong> نقلة</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. الخرسانة -->
+  <div id="concrete" class="tab-content">
+    <div class="card">
+      <h3>🏢 مرحلة الخرسانة والخلطة</h3>
+      <div class="form-group">
+        <label>نوع الخلطة الخرسانية:</label>
+        <select id="cMix">
+          <option value="1:1.5:3">C25 (1 : 1.5 : 3) - الصبات الإنشائية</option>
+          <option value="1:2:4">C20 (1 : 2 : 4) - نظافة وأساسات</option>
+        </select>
+      </div>
+      <div class="row">
+        <div class="form-group"><label>الطول (م):</label><input type="number" id="cL" value="10"></div>
+        <div class="form-group"><label>العرض (م):</label><input type="number" id="cW" value="5"></div>
+        <div class="form-group"><label>السمك (م):</label><input type="number" id="cH" value="0.2"></div>
+      </div>
+      <button class="calc-btn" onclick="calcConcrete()">احسب مواد الخرسانة</button>
+      <div class="results" id="resConcrete">
+        <p>الحجم الخرساني: <strong id="cVol">0</strong> م³</p>
+        <p>📦 عدد أكياس السمنت (50 كغم): <strong id="cBags" style="color:var(--accent-color)">0</strong> كيس</p>
+        <p>🏜️ كمية الرمل: <strong id="cSand">0</strong> م³</p>
+        <p>🪨 كمية الحصى: <strong id="cGravel">0</strong> م³</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. حديد التسليح -->
+  <div id="steel" class="tab-content">
+    <div class="card">
+      <h3>⛓️ مرحلة حديد التسليح والأتاري</h3>
+      <div class="row">
+        <div class="form-group">
+          <label>قطر الحديد الرئيسي (ملم):</label>
+          <select id="sDia">
+            <option value="12">12 ملم</option>
+            <option value="16" selected>16 ملم</option>
+            <option value="20">20 ملم</option>
+          </select>
+        </div>
+        <div class="form-group"><label>عدد الشياش الكلي:</label><input type="number" id="sBars" value="20"></div>
+        <div class="form-group"><label>طول الشيش (م):</label><input type="number" id="sLen" value="12"></div>
+      </div>
+      <button class="calc-btn" onclick="calcSteel()">احسب وزن الحديد</button>
+      <div class="results" id="resSteel">
+        <p>الوزن الصافي للحديد: <strong id="sNetWeight">0</strong> كغم</p>
+        <p>⚖️ الوزن الإجمالي (مع 10% تداخل وضياع): <strong id="sTotalWeight" style="color:var(--accent-color)">0</strong> كغم (<strong id="sTons">0</strong> طن)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. البناء والطابوق -->
+  <div id="masonry" class="tab-content">
+    <div class="card">
+      <h3>🧱 مرحلة البناء (طابوق / ثرمستون)</h3>
+      <div class="form-group">
+        <label>نوع مادة البناء:</label>
+        <select id="mType">
+          <option value="brick">طابوق استندر (400 طابوقة / م³)</option>
+          <option value="thermostone">ثرمستون (28 بلوكة / م³)</option>
+        </select>
+      </div>
+      <div class="row">
+        <div class="form-group"><label>طول الجدار (م):</label><input type="number" id="mL" value="15"></div>
+        <div class="form-group"><label>ارتفاع الجدار (م):</label><input type="number" id="mH" value="3"></div>
+        <div class="form-group"><label>سمك الجدار (م):</label><input type="number" id="mW" value="0.24"></div>
+      </div>
+      <button class="calc-btn" onclick="calcMasonry()">احسب كميات البناء</button>
+      <div class="results" id="resMasonry">
+        <p>حجم الجدار الكلي: <strong id="mVol">0</strong> م³</p>
+        <p>🧱 العدد المطلوب للمادة: <strong id="mCount" style="color:var(--accent-color)">0</strong> قطعة</p>
+        <p>📦 أكياس السمنت للمونة: <strong id="mCement">0</strong> كيس</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. اللبخ والبياض -->
+  <div id="plaster" class="tab-content">
+    <div class="card">
+      <h3>🧱 مرحلة اللبخ والبياض</h3>
+      <div class="form-group"><label>المساحة الإجمالية للجدران (م²):</label><input type="number" id="pArea" value="100"></div>
+      <div class="form-group"><label>سمك طبقة اللبخ (سم):</label><input type="number" id="pThick" value="2"></div>
+      <button class="calc-btn" onclick="calcPlaster()">احسب مواد اللبخ</button>
+      <div class="results" id="resPlaster">
+        <p>📦 أكياس السمنت المطلوبة: <strong id="pCement" style="color:var(--accent-color)">0</strong> كيس</p>
+        <p>🏜️ كمية الرمل المطلوبة: <strong id="pSand">0</strong> م³</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. الأرضيات والسيراميك -->
+  <div id="tiles" class="tab-content">
+    <div class="card">
+      <h3>شغل الأرضيات والكاشي / السيراميك</h3>
+      <div class="form-group"><label>مساحة الأرضيات (م²):</label><input type="number" id="tArea" value="80"></div>
+      <button class="calc-btn" onclick="calcTiles()">احسب كميات الأرضيات</button>
+      <div class="results" id="resTiles">
+        <p>📐 مساحة السيراميك/الكاشي (+ 5% هالك): <strong id="tNetArea" style="color:var(--accent-color)">0</strong> م²</p>
+        <p>📦 أكياس السمنت للمونة تحت الكاشي: <strong id="tCement">0</strong> كيس</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. الصبغ والدهان -->
+  <div id="paint" class="tab-content">
+    <div class="card">
+      <h3>🎨 مرحلة الصبغ والدهان</h3>
+      <div class="form-group"><label>مساحة الجدران للصبغ (م²):</label><input type="number" id="ptArea" value="120"></div>
+      <div class="form-group"><label>عدد الأوجه (وش الجدار):</label><input type="number" id="ptCoats" value="2"></div>
+      <button class="calc-btn" onclick="calcPaint()">احسب كمية الصبغ</button>
+      <div class="results" id="resPaint">
+        <p>💧 كمية الصبغ المطلوبة: <strong id="ptLiters">0</strong> لتر</p>
+        <p>🪣 عدد سطول الصبغ الكبيرة (سعة 15 لتر): <strong id="ptBuckets" style="color:var(--accent-color)">0</strong> سطل</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. كلفة المفتاح -->
+  <div id="key" class="tab-content">
+    <div class="card">
+      <h3>🔑 التكلفة التقديرية (تسليم مفتاح)</h3>
+      <div class="form-group"><label>مساحة الأرض / البناء (م²):</label><input type="number" id="kArea" value="200"></div>
+      <div class="form-group"><label>عدد الطوابق:</label><input type="number" id="kFloors" value="1"></div>
+      <div class="form-group"><label>كلفة المتر التقديرية (دينار/دولار):</label><input type="number" id="kRate" value="300000"></div>
+      <button class="calc-btn" onclick="calcKey()">احسب التكلفة التقديرية</button>
+      <div class="results" id="resKey">
+        <p>إجمالي مساحة البناء: <strong id="kTotalArea">0</strong> م²</p>
+        <p>💰 الكلفة الكلية التقديرية: <strong id="kTotalCost" style="color:var(--accent-color)">0</strong></p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchStage(stageId) {
+    document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.stage-btn').forEach(e => e.classList.remove('active'));
+    document.getElementById(stageId).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  function calcEarth() {
+    let l = parseFloat(document.getElementById('eL').value)||0;
+    let w = parseFloat(document.getElementById('eW').value)||0;
+    let h = parseFloat(document.getElementById('eH').value)||0;
+    let cap = parseFloat(document.getElementById('truckCap').value)||12;
+    let vol = l * w * h;
+    let swell = vol * 1.25;
+    document.getElementById('eVol').innerText = vol.toFixed(1);
+    document.getElementById('eSwell').innerText = swell.toFixed(1);
+    document.getElementById('eTrucks').innerText = Math.ceil(swell / cap);
+    document.getElementById('resEarth').style.display = 'block';
+  }
+
+  function calcConcrete() {
+    let l = parseFloat(document.getElementById('cL').value)||0;
+    let w = parseFloat(document.getElementById('cW').value)||0;
+    let h = parseFloat(document.getElementById('cH').value)||0;
+    let vol = l * w * h;
+    let dry = vol * 1.54;
+    let bags = (dry * (1/5.5)) * 1440 / 50;
+    document.getElementById('cVol').innerText = vol.toFixed(2);
+    document.getElementById('cBags').innerText = Math.ceil(bags);
+    document.getElementById('cSand').innerText = (dry * (1.5/5.5)).toFixed(2);
+    document.getElementById('cGravel').innerText = (dry * (3/5.5)).toFixed(2);
+    document.getElementById('resConcrete').style.display = 'block';
+  }
+
+  function calcSteel() {
+    let dia = parseFloat(document.getElementById('sDia').value);
+    let bars = parseFloat(document.getElementById('sBars').value)||0;
+    let len = parseFloat(document.getElementById('sLen').value)||0;
+    let net = ((dia * dia) / 162.2) * bars * len;
+    let total = net * 1.10;
+    document.getElementById('sNetWeight').innerText = net.toFixed(1);
+    document.getElementById('sTotalWeight').innerText = total.toFixed(1);
+    document.getElementById('sTons').innerText = (total / 1000).toFixed(3);
+    document.getElementById('resSteel').style.display = 'block';
+  }
+
+  function calcMasonry() {
+    let type = document.getElementById('mType').value;
+    let l = parseFloat(document.getElementById('mL').value)||0;
+    let h = parseFloat(document.getElementById('mH').value)||0;
+    let w = parseFloat(document.getElementById('mW').value)||0;
+    let vol = l * h * w;
+    let count = type === 'brick' ? vol * 400 : vol * 28;
+    let cement = vol * 2.5; // أكياس سمنت تقديرية للمونة
+    document.getElementById('mVol').innerText = vol.toFixed(2);
+    document.getElementById('mCount').innerText = Math.ceil(count);
+    document.getElementById('mCement').innerText = Math.ceil(cement);
+    document.getElementById('resMasonry').style.display = 'block';
+  }
+
+  function calcPlaster() {
+    let area = parseFloat(document.getElementById('pArea').value)||0;
+    let thick = (parseFloat(document.getElementById('pThick').value)||2) / 100;
+    let vol = area * thick;
+    let bags = vol * 6; // تقدير أكياس السمنت للّبخ
+    document.getElementById('pCement').innerText = Math.ceil(bags);
+    document.getElementById('pSand').innerText = (vol * 0.8).toFixed(2);
+    document.getElementById('resPlaster').style.display = 'block';
+  }
+
+  function calcTiles() {
+    let area = parseFloat(document.getElementById('tArea').value)||0;
+    let netArea = area * 1.05;
+    document.getElementById('tNetArea').innerText = netArea.toFixed(1);
+    document.getElementById('tCement').innerText = Math.ceil(area * 0.35);
+    document.getElementById('resTiles').style.display = 'block';
+  }
+
+  function calcPaint() {
+    let area = parseFloat(document.getElementById('ptArea').value)||0;
+    let coats = parseFloat(document.getElementById('ptCoats').value)||2;
+    let liters = (area * coats) / 10; // كل لتر يغطي تقريباً 10 م²
+    document.getElementById('ptLiters').innerText = liters.toFixed(1);
+    document.getElementById('ptBuckets').innerText = Math.ceil(liters / 15);
+    document.getElementById('resPaint').style.display = 'block';
+  }
+
+  function calcKey() {
+    let area = parseFloat(document.getElementById('kArea').value)||0;
+    let floors = parseFloat(document.getElementById('kFloors').value)||1;
+    let rate = parseFloat(document.getElementById('kRate').value)||0;
+    let totalArea = area * floors;
+    let cost = totalArea * rate;
+    document.getElementById('kTotalArea').innerText = totalArea;
+    document.getElementById('kTotalCost').innerText = cost.toLocaleString('ar-IQ');
+    document.getElementById('resKey').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
